@@ -182,7 +182,7 @@ function resetWorld(){
   S.shake = 0; S.flash = 0; S.newBest = false;
   hero.y = 0; hero.vy = 0; hero.jumps = 0; hero.rot = 0;
   obstacles.length = 0; coins.length = 0; puffs.length = 0; sparkles.length = 0;
-  spawnGap = 320; coinGap = 520;
+  spawnGap = 900; coinGap = 360;
   clouds.length = 0;
   for(var i=0;i<5;i++){
     clouds.push({ x: rnd(0,W), y: rnd(40,190), s: rnd(0.55,1.1), sp: rnd(0.12,0.35) });
@@ -391,15 +391,22 @@ function drawGround(){
 /* ============ 障碍 ============ */
 var OB_TYPES = ['bush','bush','rock','sign'];
 
-function spawnObstacle(){
-  var t = OB_TYPES[(Math.random()*OB_TYPES.length)|0];
-  var o = { type:t, x: W+80, w: 46, h: 76, seed: Math.random() };
+function spawnObstacle(prog){
+  prog = clamp(prog, 0, 1);
+  // 前期只出矮石头，越往后才出高灌木和路牌
+  var pool = prog < 0.18 ? ['rock','rock','bush']
+           : prog < 0.45 ? ['rock','bush','bush','sign']
+           : OB_TYPES;
+  var t = pool[(Math.random()*pool.length)|0];
+  var o = { type:t, x: W+80, w: 46, h: 60, seed: Math.random() };
+  // 高度随进度缓慢上涨：开局 34~50，末尾 72~94
+  var lo = 34 + prog*38, hi = 50 + prog*44;
   if(t === 'bush'){
-    o.w = rnd(46, 58); o.h = rnd(64, 92);
+    o.w = rnd(44, 56); o.h = rnd(lo+6, hi);
   }else if(t === 'rock'){
-    o.w = rnd(52, 70); o.h = rnd(38, 52);
+    o.w = rnd(50, 66); o.h = rnd(lo-8, hi-22);
   }else{
-    o.w = 44; o.h = 88;
+    o.w = 42; o.h = rnd(62 + prog*20, 78 + prog*16);
   }
   obstacles.push(o);
 }
@@ -964,7 +971,9 @@ function update(dt){
   }
 
   /* ---- 跑动 ---- */
-  S.speed = Math.min(14.5, 7.6 + S.time * 0.16);
+  // 速度：6.8 起步，约 75 秒爬到 12.5，前面慢、后面快
+  var progNow = clamp(S.time / 75, 0, 1);
+  S.speed = 6.8 + progNow * 5.7;
   S.dist += S.speed * dt * 60;
 
   // 跳跃物理
@@ -981,10 +990,12 @@ function update(dt){
 
   /* ---- 生成 ---- */
   spawnGap -= S.speed * dt * 60;
-  if(spawnGap <= 0){
-    spawnObstacle();
-    var extra = clamp(240 - S.time*2, 150, 240);
-    spawnGap = rnd(300, 420) + extra*0.6;
+  // 前 2.6 秒是热身区：只跑不出障碍
+  if(S.time > 2.6 && spawnGap <= 0){
+    spawnObstacle(progNow);
+    // 反应时间：开局 2.4 秒 -> 后期 1.15 秒，换算成距离
+    var react = 2.4 - progNow * 1.25;
+    spawnGap = Math.max(320, S.speed * 60 * react) + rnd(-20, 60);
   }
   coinGap -= S.speed * dt * 60;
   if(coinGap <= 0){
@@ -1086,7 +1097,7 @@ function drawHUD(){
   ctx.fillText(String(S.best).padStart(3,'0'), W-44, y+12);
 
   /* 中间：速度条 */
-  var sp = clamp((S.speed-7.6)/(14.5-7.6),0,1);
+  var sp = clamp((S.speed-6.8)/5.7,0,1);
   var barW = 130, barX = W/2 - barW/2, barY = 28;
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(51,37,28,.5)';
@@ -1289,7 +1300,10 @@ window.__pelican = {
   step: function(n){ for(var i=0;i<(n||1);i++) update(STEP); render(STEP); },
   reset: function(){ resetWorld(); },
   jump: jump,
-  doJump: doJump
+  doJump: doJump,
+  tick: function(n){ for(var i=0;i<(n||1);i++) update(STEP); },
+  obstacles: function(){ return obstacles; },
+  speed: function(){ return S.speed; }
 };
 
 /* 截图调试钩子：#shot=run / jump / over */
