@@ -1111,7 +1111,7 @@ function drawStart(){
   ctx.fillRect(0,0,W,H);
 
   // 卡片（放右侧，露出左边的主角）
-  var cw = 440, ch = 250, cx0 = W/2 + 178, cy0 = 238;
+  var cw = 440, ch = 264, cx0 = W/2 + 178, cy0 = 236;
   ctx.save();
   ctx.shadowColor = 'rgba(32,50,60,.28)';
   ctx.shadowBlur = 34;
@@ -1134,24 +1134,29 @@ function drawStart(){
 
   ctx.fillStyle = 'rgba(32,50,60,.45)';
   ctx.font = 'bold 13px "PingFang SC","Microsoft YaHei",sans-serif';
-  ctx.fillText('M U Q I N G   G A M E S', cx0, cy0-78);
+  ctx.fillText('M U Q I N G   G A M E S', cx0, cy0-84);
 
   ctx.fillStyle = C.ink;
   ctx.font = 'bold 52px "PingFang SC","Microsoft YaHei",sans-serif';
-  ctx.fillText('沐晴小游戏', cx0, cy0-30);
+  ctx.fillText('沐晴小游戏', cx0, cy0-36);
 
-  ctx.fillStyle = 'rgba(32,50,60,.62)';
-  ctx.font = '17px "PingFang SC","Microsoft YaHei",sans-serif';
-  ctx.fillText('一只鹈鹕驮着单车，单车上坐着街机', cx0, cy0+16);
+  ctx.fillStyle = 'rgba(32,50,60,.60)';
+  ctx.font = '16px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText('一只鹈鹕驮着单车，单车上坐着街机', cx0, cy0+8);
 
-  ctx.fillStyle = 'rgba(32,50,60,.74)';
+  // 一句闲话：给无聊的时候
+  ctx.fillStyle = 'rgba(32,50,60,.72)';
   ctx.font = '15px "PingFang SC","Microsoft YaHei",sans-serif';
-  ctx.fillText('躲开灌木和石头，捡金币，越跑越快', cx0, cy0+52);
+  ctx.fillText('无聊的时候，就来跑两把。', cx0, cy0+44);
+
+  ctx.fillStyle = 'rgba(32,50,60,.55)';
+  ctx.font = '14px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText('躲开灌木和石头，捡金币，越跑越快', cx0, cy0+76);
 
   // 指向右下角按钮
   ctx.fillStyle = C.red;
-  ctx.font = 'bold 16px "PingFang SC","Microsoft YaHei",sans-serif';
-  ctx.fillText('按右下角「开始」出发  →', cx0, cy0+90);
+  ctx.font = 'bold 15px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText('按右下角「开始」出发  →', cx0, cy0+108);
 
   ctx.restore();
 }
